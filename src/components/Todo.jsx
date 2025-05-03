@@ -17,13 +17,16 @@ const Todo = () => {
 
   const addTodo = (text) => {
     if (text) {
-      const isDuplicate = todos.some((todo) => todo.text === text);
+      const trimmed = text.trim().toLowerCase();
+      const isDuplicate = todos.some(
+        (todo) => todo.text.trim().toLowerCase() === trimmed
+      );
       if (isDuplicate) {
         toast.error("Todo already exists!");
         return;
       }
 
-      setTodos([...todos, { text, completed: false }]);
+      setTodos([...todos, { text: text.trim(), completed: false }]);
       toast.success("Todo added!");
     }
   };
@@ -50,7 +53,7 @@ const Todo = () => {
     }
 
     const isDuplicate = todos.some(
-      (todo, i) => todo.text === trimmed && i !== index
+      (todo, i) => todo.text.trim().toLowerCase() === trimmed.toLowerCase() && i !== index
     );
     if (isDuplicate) {
       toast.error("Another todo with this text already exists!");
