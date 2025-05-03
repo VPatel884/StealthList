@@ -10,23 +10,70 @@ const Todo = () => {
     const saved = localStorage.getItem("todos");
     return saved ? JSON.parse(saved) : [];
   });
+  const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("time-desc");
 
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
 
+  const getFilteredAndSortedTodos = () => {
+    let filtered = [...todos];
+
+    if (filter === "completed") {
+      filtered = filtered.filter((todo) => todo.completed);
+    } else if (filter === "incomplete") {
+      filtered = filtered.filter((todo) => !todo.completed);
+    } else if (filter === "today") {
+      const today = new Date().toLocaleDateString();
+      filtered = filtered.filter((todo) => todo.createdAt?.startsWith(today));
+    }
+
+    switch (sort) {
+      case "time-asc":
+        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      case "time-desc":
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case "alpha":
+        filtered.sort((a, b) => a.text.localeCompare(b.text));
+        break;
+      case "completed":
+        filtered.sort((a, b) => b.completed - a.completed);
+        break;
+      case "incomplete":
+        filtered.sort((a, b) => a.completed - b.completed);
+        break;
+    }
+
+    return filtered;
+  };
+
   const addTodo = (text) => {
     if (text) {
-      const trimmed = text.trim().toLowerCase();
+      const trimmed = text;
       const isDuplicate = todos.some(
-        (todo) => todo.text.trim().toLowerCase() === trimmed
+        (todo) =>
+          todo.text.trim().toLowerCase() === trimmed.trim().toLowerCase()
       );
       if (isDuplicate) {
         toast.error("Todo already exists!");
         return;
       }
 
-      setTodos([...todos, { text: text.trim(), completed: false }]);
+      const now = new Date();
+      const formattedDate = new Intl.DateTimeFormat("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(now);
+      const todo = {
+        text: trimmed,
+        completed: false,
+        createdAt: formattedDate,
+      };
+
+      setTodos([...todos, todo]);
       toast.success("Todo added!");
     }
   };
@@ -53,7 +100,8 @@ const Todo = () => {
     }
 
     const isDuplicate = todos.some(
-      (todo, i) => todo.text.trim().toLowerCase() === trimmed.toLowerCase() && i !== index
+      (todo, i) =>
+        todo.text.trim().toLowerCase() === trimmed.toLowerCase() && i !== index
     );
     if (isDuplicate) {
       toast.error("Another todo with this text already exists!");
@@ -83,8 +131,41 @@ const Todo = () => {
 
         <TodoDateTime />
         <TodoInput onAdd={addTodo} />
+
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <div style={{ maxWidth: "200px" }}>
+            <label className="form-label fw-semibold">Sort by</label>
+            <select
+              className="form-select me-2"
+              style={{ maxWidth: "200px" }}
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              <option value="time-desc">Newest First</option>
+              <option value="time-asc">Oldest First</option>
+              <option value="alpha">A-Z</option>
+              <option value="completed">Completed First</option>
+              <option value="incomplete">Incomplete First</option>
+            </select>
+          </div>
+
+          <div style={{ maxWidth: "200px" }}>
+            <label className="form-label fw-semibold">Filter by</label>
+            <select
+              className="form-select"
+              style={{ maxWidth: "200px" }}
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="completed">Completed</option>
+              <option value="incomplete">Incomplete</option>
+            </select>
+          </div>
+        </div>
+
         <TodoList
-          todos={todos}
+          todos={getFilteredAndSortedTodos()}
           onToggle={toggleTodo}
           onRemove={removeTodo}
           onEdit={editTodo}

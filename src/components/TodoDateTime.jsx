@@ -6,7 +6,8 @@ export const TodoDateTime = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      const formattedDate = now.toLocaleDateString();
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      const formattedDate = now.toLocaleDateString("en-US", options);
       const formattedTime = now.toLocaleTimeString();
 
       setDateTime(`${formattedDate} - ${formattedTime}`);

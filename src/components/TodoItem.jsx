@@ -26,11 +26,15 @@ const TodoItem = ({ todo, onToggle, onRemove, onEdit }) => {
         </>
       ) : (
         <>
+        <div className="d-flex flex-column">
           <span
             style={{ textDecoration: todo.completed ? "line-through" : "none" }}
           >
             {todo.text}
+            
           </span>
+          <small className="text-muted">{todo.createdAt}</small>
+          </div>
           <div>
             <button
               className={`btn btn-sm me-2 ${
