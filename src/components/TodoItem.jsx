@@ -34,19 +34,22 @@ const TodoItem = ({ todo, onToggle, onRemove, onEdit }) => {
           <div>
             <button
               className={`btn btn-sm me-2 ${
-                todo.completed ? "btn-success" : "btn-warning"
+                todo.completed ? "btn-outline-success" : "btn-outline-warning"
               }`}
               onClick={onToggle}
             >
               {todo.completed ? "Complete" : "Incomplete"}
             </button>
             <button
-              className="btn btn-sm btn-info me-2"
+              className="btn btn-sm btn-outline-info me-2"
               onClick={() => setIsEditing(true)}
             >
               Edit
             </button>
-            <button className="btn btn-sm btn-danger" onClick={onRemove}>
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={onRemove}
+            >
               Remove
             </button>
           </div>

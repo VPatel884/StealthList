@@ -10,7 +10,7 @@ const TodoInput = ({ onAdd }) => {
   };
 
   return (
-    <form className="input-group mb-3" onSubmit={handleSubmit}>
+    <form className="input-group mb-3 mt-4" onSubmit={handleSubmit}>
       <input
         type="text"
         className="form-control"
