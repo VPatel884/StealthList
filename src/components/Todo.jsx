@@ -4,18 +4,25 @@ import "react-toastify/dist/ReactToastify.css";
 import TodoInput from "./TodoInput";
 import TodoList from "./TodoList";
 import { TodoDateTime } from "./TodoDateTime";
+import API from "../api";
 
 const Todo = () => {
-  const [todos, setTodos] = useState(() => {
-    const saved = localStorage.getItem("todos");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("time-desc");
 
+  const fetchTodos = async () => {
+    try {
+      const res = await API.get("/");
+      setTodos(res.data);
+    } catch (err) {
+      toast.error("Failed to fetch todos",err);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+    fetchTodos();
+  }, []);
 
   const getFilteredAndSortedTodos = () => {
     let filtered = [...todos];
@@ -24,9 +31,6 @@ const Todo = () => {
       filtered = filtered.filter((todo) => todo.completed);
     } else if (filter === "incomplete") {
       filtered = filtered.filter((todo) => !todo.completed);
-    } else if (filter === "today") {
-      const today = new Date().toLocaleDateString();
-      filtered = filtered.filter((todo) => todo.createdAt?.startsWith(today));
     }
 
     switch (sort) {
@@ -50,49 +54,53 @@ const Todo = () => {
     return filtered;
   };
 
-  const addTodo = (text) => {
-    if (text) {
-      const trimmed = text;
-      const isDuplicate = todos.some(
-        (todo) =>
-          todo.text.trim().toLowerCase() === trimmed.trim().toLowerCase()
-      );
-      if (isDuplicate) {
-        toast.error("Todo already exists!");
-        return;
-      }
+  const addTodo = async (text) => {
+    if (!text) return;
 
-      const now = new Date();
-      const formattedDate = new Intl.DateTimeFormat("en-US", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(now);
-      const todo = {
-        text: trimmed,
-        completed: false,
-        createdAt: formattedDate,
-      };
+    const trimmed = text.trim();
+    const isDuplicate = todos.some(
+      (todo) => todo.text.trim().toLowerCase() === trimmed.toLowerCase()
+    );
+    if (isDuplicate) {
+      toast.error("Todo already exists!");
+      return;
+    }
 
-      setTodos([...todos, todo]);
+    try {
+      const res = await API.post("/", { text: trimmed });
+      setTodos([...todos, res.data]);
       toast.success("Todo added!");
+    } catch (err) {
+      toast.error("Failed to add todo.",err);
     }
   };
 
-  const toggleTodo = (index) => {
-    const newTodos = [...todos];
-    newTodos[index].completed = !newTodos[index].completed;
-    setTodos(newTodos);
+  const toggleTodo = async (index) => {
+    const todo = todos[index];
+    try {
+      const res = await API.put(`/${todo._id}`, {
+        completed: !todo.completed,
+      });
+      const updated = [...todos];
+      updated[index] = res.data;
+      setTodos(updated);
+    } catch (err) {
+      toast.error("Failed to toggle todo.",err);
+    }
   };
 
-  const removeTodo = (index) => {
-    const newTodos = [...todos];
-    const removedText = newTodos[index].text;
-    newTodos.splice(index, 1);
-    setTodos(newTodos);
-    toast.warn(`Removed: "${removedText}"`);
+  const removeTodo = async (index) => {
+    const todo = todos[index];
+    try {
+      await API.delete(`/${todo._id}`);
+      setTodos(todos.filter((_, i) => i !== index));
+      toast.warn(`Removed: "${todo.text}"`);
+    } catch (err) {
+      toast.error("Failed to delete todo.",err);
+    }
   };
 
-  const editTodo = (index, newText) => {
+  const editTodo = async (index, newText) => {
     const trimmed = newText.trim();
     if (!trimmed) {
       toast.error("Todo cannot be empty.");
@@ -108,19 +116,30 @@ const Todo = () => {
       return;
     }
 
-    const newTodos = [...todos];
-    newTodos[index].text = trimmed;
-    setTodos(newTodos);
-    toast.info("Todo updated.");
+    const todo = todos[index];
+    try {
+      const res = await API.put(`/${todo._id}`, {
+        text: trimmed,
+      });
+      const updated = [...todos];
+      updated[index] = res.data;
+      setTodos(updated);
+      toast.info("Todo updated.");
+    } catch (err) {
+      toast.error("Failed to update todo.",err);
+    }
   };
 
-  const clearTodos = () => {
-    const confirmClear = window.confirm(
-      "Are you sure you want to clear all todos?"
-    );
-    if (confirmClear) {
+  const clearTodos = async () => {
+    const confirmClear = window.confirm("Are you sure you want to clear all todos?");
+    if (!confirmClear) return;
+
+    try {
+      await API.delete("/all");
       setTodos([]);
       toast.success("Todos cleared!");
+    } catch (err) {
+      toast.error("Failed to clear todos.",err);
     }
   };
 
@@ -137,7 +156,6 @@ const Todo = () => {
             <label className="form-label fw-semibold">Sort by</label>
             <select
               className="form-select me-2"
-              style={{ maxWidth: "200px" }}
               value={sort}
               onChange={(e) => setSort(e.target.value)}
             >
@@ -153,7 +171,6 @@ const Todo = () => {
             <label className="form-label fw-semibold">Filter by</label>
             <select
               className="form-select"
-              style={{ maxWidth: "200px" }}
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             >

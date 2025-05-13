@@ -11,6 +11,13 @@ const TodoItem = ({ todo, onToggle, onRemove, onEdit }) => {
     }
   };
 
+  const formattedCreatedAt = todo.createdAt
+    ? new Intl.DateTimeFormat("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(todo.createdAt))
+    : "";
+
   return (
     <li className="list-group-item d-flex justify-content-between align-items-center">
       {isEditing ? (
@@ -33,7 +40,7 @@ const TodoItem = ({ todo, onToggle, onRemove, onEdit }) => {
             {todo.text}
             
           </span>
-          <small className="text-muted">{todo.createdAt}</small>
+          <small className="text-muted">{formattedCreatedAt}</small>
           </div>
           <div>
             <button
