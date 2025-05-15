@@ -10,15 +10,19 @@ const Todo = () => {
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("time-desc");
+  const [loading, setLoading] = useState(true);
 
   const fetchTodos = async () => {
-    try {
-      const res = await API.get("/");
-      setTodos(res.data);
-    } catch (err) {
-      toast.error("Failed to fetch todos",err);
-    }
-  };
+  setLoading(true);
+  try {
+    const res = await API.get('/');
+    setTodos(res.data);
+  } catch (err) {
+    toast.error("Failed to fetch todos",err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchTodos();
@@ -181,13 +185,26 @@ const Todo = () => {
           </div>
         </div>
 
-        <TodoList
-          todos={getFilteredAndSortedTodos()}
-          onToggle={toggleTodo}
-          onRemove={removeTodo}
-          onEdit={editTodo}
-          onClear={clearTodos}
-        />
+        {loading ? (
+  <div className="text-center my-4">
+    <div className="spinner-border text-primary" role="status">
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+) : getFilteredAndSortedTodos().length === 0 ? (
+  <div className="text-center text-muted my-4">
+    No todos found.
+  </div>
+) : (
+  <TodoList
+    todos={getFilteredAndSortedTodos()}
+    onToggle={toggleTodo}
+    onRemove={removeTodo}
+    onEdit={editTodo}
+    onClear={clearTodos}
+  />
+)}
+
       </div>
     </div>
   );
