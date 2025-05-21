@@ -1,32 +1,32 @@
-import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchTodos,
+  addTodo,
+  toggleTodo,
+  deleteTodo,
+  clearTodos,
+  editTodo,
+} from "../features/todo/todoSlice";
 import TodoInput from "./TodoInput";
 import TodoList from "./TodoList";
 import { TodoDateTime } from "./TodoDateTime";
-import API from "../api";
+import { toast } from "react-toastify";
 
 const Todo = () => {
-  const [todos, setTodos] = useState([]);
+  const dispatch = useDispatch();
+  const { items: todos, loading, error } = useSelector((state) => state.todos);
+
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("time-desc");
-  const [loading, setLoading] = useState(true);
-
-  const fetchTodos = async () => {
-  setLoading(true);
-  try {
-    const res = await API.get('/');
-    setTodos(res.data);
-  } catch (err) {
-    toast.error("Failed to fetch todos",err);
-  } finally {
-    setLoading(false);
-  }
-};
 
   useEffect(() => {
-    fetchTodos();
-  }, []);
+    dispatch(fetchTodos());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
 
   const getFilteredAndSortedTodos = () => {
     let filtered = [...todos];
@@ -58,92 +58,37 @@ const Todo = () => {
     return filtered;
   };
 
-  const addTodo = async (text) => {
-    if (!text) return;
-
-    const trimmed = text.trim();
-    const isDuplicate = todos.some(
-      (todo) => todo.text.trim().toLowerCase() === trimmed.toLowerCase()
-    );
-    if (isDuplicate) {
+  const handleAdd = (text) => {
+    if (!text.trim()) return;
+    const exists = todos.some((t) => t.text.trim().toLowerCase() === text.trim().toLowerCase());
+    if (exists) {
       toast.error("Todo already exists!");
       return;
     }
-
-    try {
-      const res = await API.post("/", { text: trimmed });
-      setTodos([...todos, res.data]);
-      toast.success("Todo added!");
-    } catch (err) {
-      toast.error("Failed to add todo.",err);
-    }
+    dispatch(addTodo(text)).unwrap().then(() => toast.success("Todo added!")).catch(toast.error);
   };
 
-  const toggleTodo = async (index) => {
-    const todo = todos[index];
-    try {
-      const res = await API.put(`/${todo._id}`, {
-        completed: !todo.completed,
-      });
-      const updated = [...todos];
-      updated[index] = res.data;
-      setTodos(updated);
-    } catch (err) {
-      toast.error("Failed to toggle todo.",err);
-    }
+  const handleToggle = (index) => {
+    dispatch(toggleTodo(todos[index]));
   };
 
-  const removeTodo = async (index) => {
-    const todo = todos[index];
-    try {
-      await API.delete(`/${todo._id}`);
-      setTodos(todos.filter((_, i) => i !== index));
-      toast.warn(`Removed: "${todo.text}"`);
-    } catch (err) {
-      toast.error("Failed to delete todo.",err);
-    }
-  };
+  const handleEdit = (index, newText) => {
+  dispatch(editTodo({ id: todos[index]._id, text: newText }))
+    .unwrap()
+    .then(() => toast.info("Todo updated"))
+    .catch(toast.error);
+};
 
-  const editTodo = async (index, newText) => {
-    const trimmed = newText.trim();
-    if (!trimmed) {
-      toast.error("Todo cannot be empty.");
-      return;
-    }
 
-    const isDuplicate = todos.some(
-      (todo, i) =>
-        todo.text.trim().toLowerCase() === trimmed.toLowerCase() && i !== index
+  const handleDelete = (index) => {
+    dispatch(deleteTodo(todos[index]._id)).then(() =>
+      toast.warn(`Removed: "${todos[index].text}"`)
     );
-    if (isDuplicate) {
-      toast.error("Another todo with this text already exists!");
-      return;
-    }
-
-    const todo = todos[index];
-    try {
-      const res = await API.put(`/${todo._id}`, {
-        text: trimmed,
-      });
-      const updated = [...todos];
-      updated[index] = res.data;
-      setTodos(updated);
-      toast.info("Todo updated.");
-    } catch (err) {
-      toast.error("Failed to update todo.",err);
-    }
   };
 
-  const clearTodos = async () => {
-    const confirmClear = window.confirm("Are you sure you want to clear all todos?");
-    if (!confirmClear) return;
-
-    try {
-      await API.delete("/all");
-      setTodos([]);
-      toast.success("Todos cleared!");
-    } catch (err) {
-      toast.error("Failed to clear todos.",err);
+  const handleClear = () => {
+    if (window.confirm("Are you sure you want to clear all todos?")) {
+      dispatch(clearTodos()).then(() => toast.success("Todos cleared!"));
     }
   };
 
@@ -151,9 +96,8 @@ const Todo = () => {
     <div className="d-flex justify-content-center mt-5">
       <div className="w-100" style={{ maxWidth: "600px" }}>
         <h2 className="text-center mb-4">Todo List</h2>
-
         <TodoDateTime />
-        <TodoInput onAdd={addTodo} />
+        <TodoInput onAdd={handleAdd} />
 
         <div className="d-flex justify-content-between align-items-center mb-3">
           <div style={{ maxWidth: "200px" }}>
@@ -186,25 +130,22 @@ const Todo = () => {
         </div>
 
         {loading ? (
-  <div className="text-center my-4">
-    <div className="spinner-border text-primary" role="status">
-      <span className="visually-hidden">Loading...</span>
-    </div>
-  </div>
-) : getFilteredAndSortedTodos().length === 0 ? (
-  <div className="text-center text-muted my-4">
-    No todos found.
-  </div>
-) : (
-  <TodoList
-    todos={getFilteredAndSortedTodos()}
-    onToggle={toggleTodo}
-    onRemove={removeTodo}
-    onEdit={editTodo}
-    onClear={clearTodos}
-  />
-)}
-
+          <div className="text-center my-4">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : getFilteredAndSortedTodos().length === 0 ? (
+          <div className="text-center text-muted my-4">No todos found.</div>
+        ) : (
+          <TodoList
+            todos={getFilteredAndSortedTodos()}
+            onToggle={handleToggle}
+            onEdit={handleEdit}
+            onRemove={handleDelete}
+            onClear={handleClear}
+          />
+        )}
       </div>
     </div>
   );
