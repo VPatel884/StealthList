@@ -68,21 +68,24 @@ const Todo = () => {
     dispatch(addTodo(text)).unwrap().then(() => toast.success("Todo added!")).catch(toast.error);
   };
 
-  const handleToggle = (index) => {
-    dispatch(toggleTodo(todos[index]));
+  const handleToggle = (id) => {
+    const todo = todos.find((t) => t._id === id);
+    if (todo) dispatch(toggleTodo(todo));
   };
 
-  const handleEdit = (index, newText) => {
-  dispatch(editTodo({ id: todos[index]._id, text: newText }))
+  const handleEdit = (id, newText) => {
+  dispatch(editTodo({ id, text: newText }))
     .unwrap()
     .then(() => toast.info("Todo updated"))
     .catch(toast.error);
 };
 
 
-  const handleDelete = (index) => {
-    dispatch(deleteTodo(todos[index]._id)).then(() =>
-      toast.warn(`Removed: "${todos[index].text}"`)
+  const handleDelete = (id) => {
+    const todo = todos.find((t) => t._id === id);
+    if(!todo) return;
+    dispatch(deleteTodo(id)).then(() =>
+      toast.warn(`Removed: "${todo.text}"`)
     );
   };
 
@@ -94,8 +97,8 @@ const Todo = () => {
 
   return (
     <div className="d-flex justify-content-center mt-5">
-      <div className="w-100" style={{ maxWidth: "600px" }}>
-        <h2 className="text-center mb-4">Todo List</h2>
+      <div className="card shadow border-0 p-4 w-100" style={{ maxWidth: "650px" }}>
+    <h3 className="text-center mb-3">📋 Your Todo List</h3>
         <TodoDateTime />
         <TodoInput onAdd={handleAdd} />
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Register = () => {
@@ -24,8 +24,9 @@ const Register = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "500px" }}>
-      <h2>Register</h2>
+    <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "70vh" }}>
+  <div className="card p-4 shadow-sm w-100" style={{ maxWidth: "400px" }}>
+      <h3 className="text-center mb-4">Create an Account</h3>
       <form onSubmit={handleSubmit}>
         <input
           className="form-control mb-3"
@@ -50,8 +51,12 @@ const Register = () => {
           onChange={handleChange}
           placeholder="Password"
         />
-        <button className="btn btn-primary">Register</button>
+        <button className="btn btn-primary w-100">Register</button>
       </form>
+      <p className="text-center mt-3">
+        Already registered? <Link to="/login">Login</Link>
+       </p>
+    </div>
     </div>
   );
 };

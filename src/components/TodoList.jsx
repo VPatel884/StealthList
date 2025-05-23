@@ -4,13 +4,13 @@ const TodoList = ({ todos, onToggle, onRemove, onEdit, onClear }) => {
   return (
     <section>
       <ul className="list-group">
-        {todos.map((todo, index) => (
+        {todos.map((todo) => (
           <TodoItem
-            key={index}
+            key={todo._id}
             todo={todo}
-            onToggle={() => onToggle(index)}
-            onRemove={() => onRemove(index)}
-            onEdit={(newText) => onEdit(index, newText)}
+            onToggle={() => onToggle(todo._id)}
+            onRemove={() => onRemove(todo._id)}
+            onEdit={(newText) => onEdit(todo._id, newText)}
           />
         ))}
       </ul>

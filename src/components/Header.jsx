@@ -13,30 +13,32 @@ const Header = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <Link className="navbar-brand" to="/">
-        TodoApp
-      </Link>
-      <div className="ms-auto">
+    <header className="bg-white shadow-sm border-bottom">
+      <nav className="container d-flex justify-content-between align-items-center py-3">
+        <Link to="/" className="text-primary fw-bold fs-4 text-decoration-none">
+          StealthList
+        </Link>
+      <div className="d-flex align-items-center">
         {user ? (
           <>
-            <span className="text-white me-3">{user.name}</span>
-            <button className="btn btn-outline-light" onClick={handleLogout}>
+            <span className="me-3 fw-medium text-dark bg-light px-3 py-1 rounded-pill">{user.name}</span>
+            <button className="btn btn-outline-primary" onClick={handleLogout}>
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link className="btn btn-outline-light me-2" to="/login">
+            <Link className="btn btn-outline-primary me-2" to="/login">
               Login
             </Link>
-            <Link className="btn btn-outline-light" to="/register">
+            <Link className="btn btn-outline-primary" to="/register">
               Register
             </Link>
           </>
         )}
       </div>
     </nav>
+    </header>
   );
 };
 

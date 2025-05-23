@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Login = () => {
@@ -25,8 +25,9 @@ const Login = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "500px" }}>
-      <h2>Login</h2>
+    <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+  <div className="card p-4 shadow-sm w-100" style={{ maxWidth: "400px" }}>
+      <h3 className="text-center mb-4">Welcome Back</h3>
       <form onSubmit={handleSubmit}>
         <input
           className="form-control mb-3"
@@ -44,10 +45,14 @@ const Login = () => {
           onChange={handleChange}
           placeholder="Password"
         />
-        <button className="btn btn-primary" disabled={isLoading}>
-          Login
-        </button>
-      </form>
+        <button className="btn btn-primary w-100" disabled={isLoading}>
+    {isLoading ? "Logging in..." : "Login"}
+  </button>
+      </form>  
+      <p className="text-center mt-3">
+        Don't have an account? <Link to="/register">Register</Link>
+      </p>
+    </div>
     </div>
   );
 };

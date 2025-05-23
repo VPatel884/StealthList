@@ -1,3 +1,17 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+body {
+  background-color: #f8f9fa;
+  font-family: 'Inter', sans-serif;
 }
+
+input::placeholder {
+  color: #aaa;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.btn {
+  border-radius: 8px;
+}
+
