@@ -1,12 +1,31 @@
-# React + Vite
+# StealthList (To-Do App)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+StealthList is a privacy-first, full-featured Todo app frontend built using React, Redux Toolkit, and React Router. It features user authentication, todo management with filtering, sorting, editing, and real-time date/time UI.
 
-Currently, two official plugins are available:
+## Features
+- Authentication (Login / Register)
+- Todo Management
+  - Add, edit, delete, toggle completion
+  - Sort by time (newest/oldest), alphabetical, completion status
+  - Filter by completed/incomplete/all
+- Redux Toolkit state management
+- Toast notifications for user feedback
+- Real-time date/time display
+- Bootstrap-based responsive UI
+- Protected routes
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Built With
+- React
+- Redux Toolkit
+- React Router
+- Axios
+- React Toastify
+- Bootstrap 5
 
-## Expanding the ESLint configuration
+## Screenshots
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+![LoginPage](https://github.com/user-attachments/assets/bc7177a4-c68e-4ed7-a749-b766103dfe86)
+
+![Screenshot 2025-05-23 101259](https://github.com/user-attachments/assets/45a2db83-b915-4642-9d3a-5d5ec70ed05b)
+
+![Screenshot 2025-05-23 101652](https://github.com/user-attachments/assets/b5b9724e-d105-49ac-9a58-169852858644)
